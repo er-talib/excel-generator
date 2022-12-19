@@ -30,26 +30,12 @@ public class ExcelController {
 	public ResponseEntity<InputStreamResource> generateExcel(@RequestParam("sectors") String[] sectors)
 			throws IOException {
 		List<Proposal> findProposalsBySector = this.proposalServiceImpl.getProposal(sectors);
-//		List<Proposal> listCSWProposal = findProposalsBySector.stream().filter(p -> p.getSector().equals("CSW"))
-//				.collect(Collectors.toList());
-//		List<Proposal> listCSTProposal = findProposalsBySector.stream().filter(p -> p.getSector().equals("CST"))
-//				.collect(Collectors.toList());
 
-//		if (!listCSWProposal.isEmpty()) {
 		ByteArrayInputStream in = excelGeneratorConfig.excelGenerator(findProposalsBySector);
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("Content-Disposition", "attachment; filename=City Sanitation Action Plan.xlsx");
 
 		return ResponseEntity.ok().headers(headers).body(new InputStreamResource(in));
-//		}
-//		if (!listCSTProposal.isEmpty()) {
-//			ByteArrayInputStream in = excelGeneratorConfig.excelGenerator(listCSTProposal);
-//			HttpHeaders headers = new HttpHeaders();
-//			headers.add("Content-Disposition", "attachment; filename=Toilet.xlsx");
-//
-//			return ResponseEntity.ok().headers(headers).body(new InputStreamResource(in));
-//		}
-//		return null;
 
 	}
 

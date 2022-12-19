@@ -4,10 +4,12 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -22,6 +24,12 @@ import com.excel.entity.Proposal;
 public class ExcelGeneratorConfig {
 
 	public static ByteArrayInputStream excelGenerator(List<Proposal> proposals) throws IOException {
+
+		List<Proposal> listCSWProposal = proposals.stream().filter(p -> p.getSector().equals("CSW"))
+				.collect(Collectors.toList());
+
+		List<Proposal> listCSTProposal = proposals.stream().filter(p -> p.getSector().equals("CST"))
+				.collect(Collectors.toList());
 
 		String[] columns = { "S.No", "Name of the ULB", "Present Population", "2011 Census Population",
 				"Present households", "2025 projected population", "2025 projected households",
@@ -63,9 +71,11 @@ public class ExcelGeneratorConfig {
 
 			CellStyle headerCellStyle = workbook.createCellStyle();
 			headerCellStyle.setFont(headFont);
+			headerCellStyle.setAlignment(HorizontalAlignment.CENTER);
 
 			CellStyle headerCellStyle1 = workbook.createCellStyle();
 			headerCellStyle1.setFont(headFont1);
+			headerCellStyle1.setAlignment(HorizontalAlignment.CENTER);
 
 			Row row = sheet.createRow(0);
 
@@ -74,34 +84,41 @@ public class ExcelGeneratorConfig {
 			sheet.addMergedRegion(new CellRangeAddress(0, 1, 0, 10));
 
 			Cell cell3 = row.createCell(11);
+			cell3.setCellStyle(headerCellStyle);
 			cell3.setCellValue("Cesspool tankers presently available");
 			sheet.addMergedRegion(new CellRangeAddress(0, 1, 11, 13));
 
 			Cell cell4 = row.createCell(14);
+			cell4.setCellStyle(headerCellStyle);
 			cell4.setCellValue("Cesspool tankers requirement 2025");
 			sheet.addMergedRegion(new CellRangeAddress(0, 1, 14, 16));
 
 			Cell cell5 = row.createCell(17);
 			cell5.setBlank();
 			sheet.addMergedRegion(new CellRangeAddress(0, 1, 17, 18));
-
 			Cell cell6 = row.createCell(19);
+			cell6.setCellStyle(headerCellStyle);
+
 			cell6.setCellValue("Cesspool tankers proposed");
 			sheet.addMergedRegion(new CellRangeAddress(0, 1, 19, 20));
-
 			Cell cell7 = row.createCell(21);
+			cell7.setCellStyle(headerCellStyle);
+
 			cell7.setCellValue("Any other cleaning equipment proposed");
 			sheet.addMergedRegion(new CellRangeAddress(0, 1, 21, 22));
-
 			Cell cell8 = row.createCell(23);
+			cell8.setCellStyle(headerCellStyle);
+
 			cell8.setCellValue("I&D Infrastructure");
 			sheet.addMergedRegion(new CellRangeAddress(0, 1, 23, 32));
 
 			Cell cell9 = row.createCell(33);
+			cell9.setCellStyle(headerCellStyle);
 			cell9.setCellValue("Septage receiving facility proposed (KLD)");
 			sheet.addMergedRegion(new CellRangeAddress(0, 1, 33, 34));
 
 			Cell cell10 = row.createCell(35);
+			cell10.setCellStyle(headerCellStyle);
 			cell10.setCellValue("Treatment Systems");
 			sheet.addMergedRegion(new CellRangeAddress(0, 1, 35, 38));
 
@@ -120,9 +137,9 @@ public class ExcelGeneratorConfig {
 				cell.setCellStyle(headerCellStyle1);
 			}
 
-			int rowInd = 2;
+			int rowInd = 3;
 			int sNo = 1;
-			for (Proposal proposal : proposals) {
+			for (Proposal proposal : listCSWProposal) {
 
 				Row row1 = sheet.createRow(rowInd++);
 				row1.createCell(0).setCellValue(sNo++);
@@ -173,11 +190,65 @@ public class ExcelGeneratorConfig {
 
 			}
 
-			int rowInd1 = 2;
-			int sNo1 = 1;
-			for (Proposal proposal : proposals) {
+			Row row3 = sheet1.createRow(0);
 
-				Row row2 = sheet.createRow(rowInd1++);
+			Cell cellT1 = row3.createCell(0);
+			cellT1.setBlank();
+			sheet1.addMergedRegion(new CellRangeAddress(0, 1, 0, 7));
+
+			Cell cellT2 = row3.createCell(8);
+			cellT2.setCellStyle(headerCellStyle1);
+			cellT2.setCellValue("Total no. of toilets required in 2025");
+			sheet1.addMergedRegion(new CellRangeAddress(0, 1, 8, 11));
+
+			Cell cellT3 = row3.createCell(12);
+			cellT3.setBlank();
+			sheet1.addMergedRegion(new CellRangeAddress(0, 1, 12, 12));
+
+			Cell cellT4 = row3.createCell(13);
+			cellT4.setCellStyle(headerCellStyle1);
+			cellT4.setCellValue("IHHL Requirement for projected population in 2025");
+			sheet1.addMergedRegion(new CellRangeAddress(0, 1, 13, 15));
+
+			Cell cellT5 = row3.createCell(16);
+			cellT5.setCellStyle(headerCellStyle1);
+			cellT5.setCellValue("Existing Community Toilet");
+			sheet1.addMergedRegion(new CellRangeAddress(0, 1, 16, 17));
+
+			Cell cellT6 = row3.createCell(18);
+			cellT6.setCellStyle(headerCellStyle1);
+			cellT6.setCellValue("Community Toilet Requirement for projected population in 2025");
+			sheet1.addMergedRegion(new CellRangeAddress(0, 1, 18, 21));
+
+			Cell cellT7 = row3.createCell(22);
+			cellT7.setCellStyle(headerCellStyle1);
+			cellT7.setCellValue("Existing Public Toilets");
+			sheet1.addMergedRegion(new CellRangeAddress(0, 1, 22, 23));
+
+			Cell cellT8 = row3.createCell(24);
+			cellT8.setCellStyle(headerCellStyle1);
+			cellT8.setCellValue("Public Toilet Requirement for projected population in 2025");
+			sheet1.addMergedRegion(new CellRangeAddress(0, 1, 24, 27));
+
+			Cell cellT9 = row3.createCell(28);
+			cellT9.setCellStyle(headerCellStyle1);
+			cellT9.setCellValue("Existing urinals");
+			sheet1.addMergedRegion(new CellRangeAddress(0, 1, 28, 29));
+
+			Cell cellT10 = row3.createCell(30);
+			cellT10.setCellStyle(headerCellStyle1);
+			cellT10.setCellValue("Urinals Requirement for projected population in 2025");
+			sheet1.addMergedRegion(new CellRangeAddress(0, 1, 30, 33));
+
+			Cell cellT11 = row3.createCell(34);
+			cellT11.setBlank();
+			sheet1.addMergedRegion(new CellRangeAddress(0, 1, 34, 35));
+
+			int rowInd1 = 3;
+			int sNo1 = 1;
+			for (Proposal proposal : listCSTProposal) {
+
+				Row row2 = sheet1.createRow(rowInd1++);
 				row2.createCell(0).setCellValue(sNo1++);
 				row2.createCell(1).setCellValue(proposal.getSector());
 				row2.createCell(2).setCellValue(proposal.getPresentPopulation());

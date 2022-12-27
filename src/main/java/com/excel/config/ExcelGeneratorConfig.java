@@ -19,6 +19,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 
 import com.excel.entity.Proposal;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class ExcelGeneratorConfig {
@@ -71,11 +73,11 @@ public class ExcelGeneratorConfig {
 
 			CellStyle headerCellStyle = workbook.createCellStyle();
 			headerCellStyle.setFont(headFont);
-			headerCellStyle.setAlignment(HorizontalAlignment.CENTER);
+			headerCellStyle.setAlignment(HorizontalAlignment.LEFT);
 
 			CellStyle headerCellStyle1 = workbook.createCellStyle();
 			headerCellStyle1.setFont(headFont1);
-			headerCellStyle1.setAlignment(HorizontalAlignment.CENTER);
+			headerCellStyle1.setAlignment(HorizontalAlignment.LEFT);
 
 			Row row = sheet.createRow(0);
 
@@ -123,55 +125,94 @@ public class ExcelGeneratorConfig {
 			sheet.addMergedRegion(new CellRangeAddress(0, 1, 35, 38));
 
 			Row headerRow = sheet.createRow(2);
+
 			Row headerRow1 = sheet1.createRow(2);
 
 			for (int col = 0; col < columns.length; col++) {
 				Cell cell = headerRow.createCell(col);
 				cell.setCellValue(columns[col]);
 				cell.setCellStyle(headerCellStyle);
+				sheet.setColumnWidth(col, 5000);
 			}
 
 			for (int col = 0; col < columns2.length; col++) {
 				Cell cell = headerRow1.createCell(col);
 				cell.setCellValue(columns2[col]);
 				cell.setCellStyle(headerCellStyle1);
+				sheet1.setColumnWidth(col, 5000);
+
 			}
 
 			int rowInd = 3;
 			int sNo = 1;
 			for (Proposal proposal : listCSWProposal) {
 
+				String[] str = { "S.No", "Name of the ULB", "Present Population", "2011 Census Population",
+						"Present households", "2025 projected population", "2025 projected households",
+						"Current Sewage Generation (MLD)", "Projected sewage generation for 2025 (MLD)",
+						"Septage generation at present(KLD) *Only for frindge areas",
+						"Projected septage generation in 2025 (KLD) *Only for frindge areas", "ULB", "Private", "Total",
+						"ULB", "Private", "Total", "FSTP Capacity available at present (KLD)",
+						"Septage treatment Capacity required in 2025 (KLD)", "No.", "Amount (Rs. in Lakh)", "No.",
+						"Amount (Rs. in Lakh)", "Length (75 cm width) of the drain to be provided / retrofitted in KMs",
+						"Amount (Rs. in Lakh)", "No. Of outfalls", "Nos. of I&D Proposed", "Dia. & Material of pipe",
+						"Length of pipe (km)", "Amount (Rs. in Lakh)", "No. of Pumping Stations", "Capacity",
+						"Amount (Rs. in Lakh)", "Capacity (KLD)", "Amount (Rs. in Lakh)", "Quantity of Sewage, KL",
+						"No. of STP Proposed", "Total Capacity of STPs Proposed, MLD", "Amount (Rs. in Lakh)",
+						"Total amount required (Rs. in Lakh) 39=20+22+24+29+29+32+34+38",
+						"Central Share sought (Rs. in Lakh)" };
+
+				JsonNode jsonNode = proposal.getGapAnalysis().getAnalysisJSON();
+
+				int presentPopulation = jsonNode.get("sections").get(0).get("items").get(1).get(3).get("value").asInt();
+				int  censusPopulation2011 = jsonNode.get("sections").get(0).get("items").get(1).get(2).get("value").asInt();
+				 int projectedPopulation2025 = jsonNode.get("sections").get(0).get("items").get(1).get(4).get("value").asInt();
+				int presenthouseholds = jsonNode.get("sections").get(0).get("items").get(2).get(3).get("value").asInt();
+				int  projectedHouseholds2025 = jsonNode.get("sections").get(0).get("items").get(2).get(4).get("value").asInt();
+				
+//				double currentSewageGenerationMLD = jsonNode.get("sections").get(5).get("items").get(2).get(0).get("value").asDouble();
+//				double projectedSewageGenerationFor2025MLD = jsonNode.get("sections").get(5).get("items").get(2).get(1).get("value").asDouble();
+				int fSTPCapacityAvailableAtPresentKLD = jsonNode.get("sections").get(11).get("items").get(1).get(3).get("value").asInt();
+//				int length75CmWidthOfTheDrainToBeProvidedRetrofittedInKMs  = jsonNode.get("sections").get(12).get("items").get(1).get(5).get("value").asInt();
+
+				Integer nosOfIAndDProposed  = jsonNode.get("sections").get(16).get("items").get(3).get(3).get("value").asInt();
+//				String diaAndMaterialOfPipe  = jsonNode.get("sections").get(7).get("items").get(0).get(2).get("value").asText();
+//				String lengthOfPipeKm  = jsonNode.get("sections").get(7).get("items").get(0).get(4).get("value").asText();
+//				int totalCapacityOfSTPProposedMLD  = jsonNode.get("sections").get(9).get("items").get(5).get(3).get("value").asInt();
+
+				
 				Row row1 = sheet.createRow(rowInd++);
 				row1.createCell(0).setCellValue(sNo++);
-				row1.createCell(1).setCellValue(proposal.getSector());
-				row1.createCell(2).setCellValue(proposal.getPresentPopulation());
-				row1.createCell(3).setCellValue(proposal.getPresentHouseHold());
-				row1.createCell(4).setCellValue(proposal.getPopulationOf2011());
-				row1.createCell(5).setCellValue(proposal.getPresentHouseHold());
-				row1.createCell(6).setCellValue(proposal.getProjectedPopulation2025());
-				row1.createCell(7).setCellValue(proposal.getProjectedHousehold2025());
+				row1.createCell(1).setCellValue(proposal.getUlbName());
+
+				row1.createCell(2).setCellValue(presentPopulation);
+				row1.createCell(3).setCellValue(censusPopulation2011);
+				row1.createCell(4).setCellValue(presenthouseholds);
+				row1.createCell(5).setCellValue(projectedPopulation2025);
+				row1.createCell(6).setCellValue(projectedHouseholds2025);
+				row1.createCell(7).setCellValue(proposal.getAmountInLakh());
 				row1.createCell(8).setCellValue(proposal.getAmountInLakh());
 				row1.createCell(9).setCellValue(proposal.getCapacity());
 				row1.createCell(10).setCellValue(proposal.getCentralShare());
-				row1.createCell(11).setCellValue(proposal.getCityOrUlb());
+				row1.createCell(11).setCellValue(proposal.getCapacity());
 				row1.createCell(12).setCellValue(proposal.getDiaAndMaterialOfPipe());
 				row1.createCell(13).setCellValue(proposal.getDistrictName());
 				row1.createCell(14).setCellValue(proposal.getLength75CM());
 				row1.createCell(15).setCellValue(proposal.getLengthOfPipe());
 				row1.createCell(16).setCellValue(proposal.getNumberOfPumpingStations());
-				row1.createCell(17).setCellValue(proposal.getNumberOfSTPProposed());
+				row1.createCell(17).setCellValue(fSTPCapacityAvailableAtPresentKLD);
 				row1.createCell(18).setCellValue(proposal.getPrivateTotalFSTP());
 				row1.createCell(19).setCellValue(proposal.getUlbCode());
-				row1.createCell(20).setCellValue(proposal.getStateId());
+				row1.createCell(20).setCellValue(proposal.getCentralShare());
 				row1.createCell(21).setCellValue(proposal.getProposalId());
 				row1.createCell(22).setCellValue(proposal.getDistrictId());
 				row1.createCell(23).setCellValue(proposal.getUniqueProposalId());
-				row1.createCell(24).setCellValue(proposal.getStateName());
+				row1.createCell(24).setCellValue(proposal.getDistrictName());
 				row1.createCell(25).setCellValue(proposal.getSectorName());
-				row1.createCell(26).setCellValue(proposal.getAmountInLakh());
-				row1.createCell(27).setCellValue(proposal.getPresentHouseHold());
-				row1.createCell(28).setCellValue(proposal.getStateId());
-				row1.createCell(29).setCellValue(proposal.getUlbName());
+				row1.createCell(26).setCellValue(proposal.getLength75CM());
+				row1.createCell(27).setCellValue(proposal.getAmountInLakh());
+				row1.createCell(28).setCellValue(proposal.getCapacity());
+				row1.createCell(29).setCellValue(proposal.getCityOrUlb());
 				row1.createCell(30).setCellValue(proposal.getState());
 				row1.createCell(31).setCellValue(proposal.getDiaAndMaterialOfPipe());
 				row1.createCell(32).setCellValue(proposal.getNumberOfSTPProposed());
@@ -179,14 +220,12 @@ public class ExcelGeneratorConfig {
 				row1.createCell(34).setCellValue(proposal.getStateId());
 				row1.createCell(35).setCellValue(proposal.getNumberOfSTPProposed());
 				row1.createCell(36).setCellValue(proposal.getStateName());
-				row1.createCell(37).setCellValue(proposal.getDistrictName());
-				row1.createCell(38).setCellValue(proposal.getNumberOfSTPProposed());
+				row1.createCell(37).setCellValue(nosOfIAndDProposed);
+				row1.createCell(38).setCellValue(proposal.getDistrictName());
 				row1.createCell(39).setCellValue(proposal.getSectorName());
 				row1.createCell(40).setCellValue(proposal.getNumberOfSTPProposed());
-				row1.createCell(41).setCellValue(proposal.getStateName());
-				row1.createCell(42).setCellValue(proposal.getDistrictName());
-				row1.createCell(43).setCellValue(proposal.getNumberOfSTPProposed());
-				row1.createCell(44).setCellValue(proposal.getSectorName());
+				row1.createCell(41).setCellValue(proposal.getCentralShare());
+				
 
 			}
 
@@ -250,11 +289,11 @@ public class ExcelGeneratorConfig {
 
 				Row row2 = sheet1.createRow(rowInd1++);
 				row2.createCell(0).setCellValue(sNo1++);
-				row2.createCell(1).setCellValue(proposal.getSector());
+				row2.createCell(1).setCellValue(proposal.getUlbName());
 				row2.createCell(2).setCellValue(proposal.getPresentPopulation());
 				row2.createCell(3).setCellValue(proposal.getPresentHouseHold());
 				row2.createCell(4).setCellValue(proposal.getPopulationOf2011());
-				row2.createCell(5).setCellValue(proposal.getPresentHouseHold());
+				row2.createCell(5).setCellValue(proposal.getGapAnalysis().getSector());
 				row2.createCell(6).setCellValue(proposal.getProjectedPopulation2025());
 				row2.createCell(7).setCellValue(proposal.getProjectedHousehold2025());
 				row2.createCell(8).setCellValue(proposal.getAmountInLakh());
